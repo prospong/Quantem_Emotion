@@ -1,0 +1,67 @@
+{
+  "timestamp": "2025-10-23T12:02:37.121420",
+  "dataset": {
+    "total_samples": 1000,
+    "train_samples": 200,
+    "test_samples": 100,
+    "features": 8
+  },
+  "ml_performance": {
+    "vqc": {
+      "train_acc": 0.86,
+      "test_acc": 0.86,
+      "gap": 0.0,
+      "best_reps": 2
+    },
+    "qsvc": {
+      "train_acc": 0.975,
+      "test_acc": 0.96,
+      "gap": 0.015000000000000013,
+      "best_C": 0.1
+    },
+    "svm": {
+      "train_acc": 1.0,
+      "test_acc": 1.0
+    },
+    "rf": {
+      "train_acc": 1.0,
+      "test_acc": 1.0
+    }
+  },
+  "interventions": {
+    "total_tests": 36,
+    "success_rate": 1.0,
+    "mean_improvement": 1.4185053199429851,
+    "std_improvement": 0.10997653496492814,
+    "by_emotion": {
+      "anxiety": {
+        "mean": 1.4215777626731443,
+        "std": 0.10522556948506073
+      },
+      "anger": {
+        "mean": 1.4179554953965454,
+        "std": 0.11065491329850169
+      },
+      "fear": {
+        "mean": 1.4159827017592657,
+        "std": 0.11380456319611751
+      }
+    }
+  },
+  "statistics": {
+    "t_statistic": 76.3071017668467,
+    "p_value": 1.6364604734267338e-40,
+    "cohens_d": 18.240886225425243,
+    "ci_lower": 1.380766776221584,
+    "ci_upper": 1.4562438636643862,
+    "wilcoxon_stat": 0.0,
+    "wilcoxon_p": 2.9103830456733704e-11
+  },
+  "hardware": {
+    "fidelity": 0.9970414958134378,
+    "entropy_ideal": 1.830612101293406,
+    "entropy_noisy": 1.8956270337824772,
+    "noise_impact": 0.002958504186562183,
+    "real_hardware_tested": true
+  }
+}

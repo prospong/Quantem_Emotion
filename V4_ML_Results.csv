@@ -1,0 +1,5 @@
+Model,Train,Test,Gap,Type
+VQC,0.86,0.86,0.0,Quantum
+QSVC,0.975,0.96,0.015000000000000013,Quantum
+SVM,1.0,1.0,0.0,Classical
+RF,1.0,1.0,0.0,Classical
