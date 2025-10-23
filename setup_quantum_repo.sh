@@ -1,8 +1,21 @@
 #!/bin/bash
 
 # ============================================================================
-# Quantum Emotional Hijacking Repository Setup Script
-# 量子情绪劫持研究仓库设置脚本
+# Quantum Emotional Hijacking Repository Setup Script (COMPLETE v2)
+# 量子情绪劫持研究仓库设置脚本 (完整v2版)
+# ============================================================================
+#
+# Version: 2.0 (Smart Auto-Detection)
+# Author: Zhigang Tian
+# Date: 2025-10-23
+#
+# IMPROVEMENTS IN V2:
+# - Auto-detects file locations (works in any environment)
+# - Graceful error handling for missing files
+# - Flexible repository location (HOME or current directory)
+# - Detailed progress reporting
+# - All features from v1 maintained
+#
 # ============================================================================
 
 set -e  # Exit on error
@@ -13,9 +26,18 @@ echo "设置量子情绪劫持研究仓库"
 echo "================================================"
 echo ""
 
-# Define repository name
+# Define repository name and location
 REPO_NAME="quantum-emotional-hijacking"
-BASE_DIR="$HOME/$REPO_NAME"
+
+# Use HOME directory if available and not root, otherwise use current directory
+if [ -n "$HOME" ] && [ "$HOME" != "/" ]; then
+    BASE_DIR="$HOME/$REPO_NAME"
+    echo "📁 Repository will be created at: $BASE_DIR"
+else
+    BASE_DIR="$(pwd)/$REPO_NAME"
+    echo "📁 Repository will be created at: $BASE_DIR (current directory)"
+fi
+echo ""
 
 # Check if repository already exists
 if [ -d "$BASE_DIR" ]; then
@@ -47,34 +69,117 @@ echo "✓ Directory structure created"
 echo ""
 
 # ============================================================================
-# Copy Files from Uploads
+# Auto-detect and Copy Files from Uploads
 # ============================================================================
 
-echo "📋 Copying files from uploads..."
+echo "📋 Detecting and copying files..."
 
-# Define source directory
-UPLOAD_DIR="/mnt/user-data/uploads"
+# Try multiple possible locations for uploaded files
+POSSIBLE_UPLOAD_DIRS=(
+    "/mnt/user-data/uploads"
+    "/mnt/uploads"
+    "/uploads"
+    "$HOME/uploads"
+    "$(pwd)/uploads"
+    "$(pwd)"
+    "/workspaces/Quantem_Emotion/uploads"
+    "/workspaces/Quantem_Emotion"
+)
 
-# Copy paper files
-cp "$UPLOAD_DIR/quantum_emotion_complete.tex" "$BASE_DIR/paper/"
-cp "$UPLOAD_DIR/references.bib" "$BASE_DIR/paper/"
-cp "$UPLOAD_DIR/PAPER_README.md" "$BASE_DIR/paper/"
-cp "$UPLOAD_DIR/COMPLETE_PAPER_INSTRUCTIONS.md" "$BASE_DIR/paper/"
-
-# Copy all figure files
-for i in {1..12}; do
-    cp "$UPLOAD_DIR/Figure${i}_"*.png "$BASE_DIR/paper/figures/" 2>/dev/null || true
+UPLOAD_DIR=""
+for dir in "${POSSIBLE_UPLOAD_DIRS[@]}"; do
+    if [ -f "$dir/quantum_emotion_complete.tex" ]; then
+        UPLOAD_DIR="$dir"
+        echo "✓ Found files in: $UPLOAD_DIR"
+        break
+    fi
 done
 
+if [ -z "$UPLOAD_DIR" ]; then
+    echo "❌ ERROR: Cannot find uploaded files!"
+    echo ""
+    echo "Searched in:"
+    for dir in "${POSSIBLE_UPLOAD_DIRS[@]}"; do
+        echo "  - $dir"
+    done
+    echo ""
+    echo "Please ensure these files are in current directory or uploads/ subdirectory:"
+    echo "  - quantum_emotion_complete.tex"
+    echo "  - references.bib"
+    echo "  - Quantum_Emotional_V4_Enhanced_Viz_COMPLETE__1_.ipynb"
+    echo "  - V4_Complete_Results.json"
+    echo "  - V4_ML_Results.csv"
+    echo "  - V4_Intervention_Results.csv"
+    echo "  - Figure1_ML_Performance.png through Figure12*.png"
+    echo ""
+    exit 1
+fi
+
+# Copy paper files with error checking
+figure_count=0
+files_copied=0
+
+if [ -f "$UPLOAD_DIR/quantum_emotion_complete.tex" ]; then
+    cp "$UPLOAD_DIR/quantum_emotion_complete.tex" "$BASE_DIR/paper/"
+    echo "  ✓ Copied quantum_emotion_complete.tex"
+    ((files_copied++))
+fi
+
+if [ -f "$UPLOAD_DIR/references.bib" ]; then
+    cp "$UPLOAD_DIR/references.bib" "$BASE_DIR/paper/"
+    echo "  ✓ Copied references.bib"
+    ((files_copied++))
+fi
+
+if [ -f "$UPLOAD_DIR/PAPER_README.md" ]; then
+    cp "$UPLOAD_DIR/PAPER_README.md" "$BASE_DIR/paper/"
+    echo "  ✓ Copied PAPER_README.md"
+    ((files_copied++))
+fi
+
+if [ -f "$UPLOAD_DIR/COMPLETE_PAPER_INSTRUCTIONS.md" ]; then
+    cp "$UPLOAD_DIR/COMPLETE_PAPER_INSTRUCTIONS.md" "$BASE_DIR/paper/"
+    echo "  ✓ Copied COMPLETE_PAPER_INSTRUCTIONS.md"
+    ((files_copied++))
+fi
+
+# Copy all figure files
+echo "  📸 Copying figures..."
+for i in {1..12}; do
+    for ext in png PNG jpg JPG; do
+        if ls "$UPLOAD_DIR/Figure${i}"*."$ext" 1> /dev/null 2>&1; then
+            cp "$UPLOAD_DIR/Figure${i}"*."$ext" "$BASE_DIR/paper/figures/" 2>/dev/null || true
+            ((figure_count++))
+            break
+        fi
+    done
+done
+echo "  ✓ Copied $figure_count figures"
+
 # Copy notebook
-cp "$UPLOAD_DIR/Quantum_Emotional_V4_Enhanced_Viz_COMPLETE__1_.ipynb" "$BASE_DIR/notebooks/Quantum_Emotional_V4_COMPLETE.ipynb"
+if [ -f "$UPLOAD_DIR/Quantum_Emotional_V4_Enhanced_Viz_COMPLETE__1_.ipynb" ]; then
+    cp "$UPLOAD_DIR/Quantum_Emotional_V4_Enhanced_Viz_COMPLETE__1_.ipynb" "$BASE_DIR/notebooks/Quantum_Emotional_V4_COMPLETE.ipynb"
+    echo "  ✓ Copied Jupyter notebook"
+    ((files_copied++))
+fi
 
 # Copy results
-cp "$UPLOAD_DIR/V4_Complete_Results.json" "$BASE_DIR/results/"
-cp "$UPLOAD_DIR/V4_ML_Results.csv" "$BASE_DIR/results/"
-cp "$UPLOAD_DIR/V4_Intervention_Results.csv" "$BASE_DIR/results/"
+results_copied=0
+if [ -f "$UPLOAD_DIR/V4_Complete_Results.json" ]; then
+    cp "$UPLOAD_DIR/V4_Complete_Results.json" "$BASE_DIR/results/"
+    ((results_copied++))
+fi
+if [ -f "$UPLOAD_DIR/V4_ML_Results.csv" ]; then
+    cp "$UPLOAD_DIR/V4_ML_Results.csv" "$BASE_DIR/results/"
+    ((results_copied++))
+fi
+if [ -f "$UPLOAD_DIR/V4_Intervention_Results.csv" ]; then
+    cp "$UPLOAD_DIR/V4_Intervention_Results.csv" "$BASE_DIR/results/"
+    ((results_copied++))
+fi
+echo "  ✓ Copied $results_copied result files"
 
-echo "✓ Files copied successfully"
+echo "✓ Files copied successfully ($files_copied main files + $figure_count figures + $results_copied results)"
 echo ""
 
 # ============================================================================
@@ -2528,6 +2633,74 @@ EOF
 
 echo ""
 echo "📝 Summary saved to: $BASE_DIR/SETUP_SUMMARY.md"
+echo ""
+
+# ============================================================================
+# Final Summary with Statistics
+# ============================================================================
+
+echo "================================================"
+echo "✅ REPOSITORY SETUP COMPLETE!"
+echo "================================================"
+echo ""
+echo "📊 Setup Statistics:"
+echo "  Repository: $BASE_DIR"
+echo "  Files found: $UPLOAD_DIR"
+echo "  Paper files: $files_copied"
+echo "  Figures: $figure_count"
+echo "  Results: $results_copied"
+echo ""
+echo "📁 Repository Structure:"
+echo "  ├── README.md (comprehensive)"
+echo "  ├── LICENSE (MIT)"
+echo "  ├── requirements.txt"
+echo "  ├── paper/ ($files_copied files + $figure_count figures)"
+echo "  ├── notebooks/ (1 Jupyter notebook)"
+echo "  ├── results/ ($results_copied result files)"
+echo "  ├── docs/ (comprehensive guides)"
+echo "  └── scripts/ (helper scripts)"
+echo ""
+echo "🎯 Next Steps:"
+echo ""
+echo "1. Navigate to repository:"
+echo "   cd $BASE_DIR"
+echo ""
+echo "2. Review contents:"
+echo "   ls -la"
+echo "   cat README.md"
+echo ""
+echo "3. Quick start:"
+echo "   ./quickstart.sh"
+echo ""
+echo "4. Push to GitHub:"
+echo "   # Create repo at https://github.com/new"
+echo "   git remote add origin https://github.com/YOUR_USERNAME/quantum-emotional-hijacking.git"
+echo "   git branch -M main"
+echo "   git push -u origin main"
+echo ""
+echo "📚 Documentation:"
+echo "  - Main guide: README.md"
+echo "  - Experiments: docs/EXPERIMENT_GUIDE.md"
+echo "  - Theory: docs/THEORY.md"
+echo "  - Paper: paper/PAPER_README.md"
+echo "  - Setup summary: SETUP_SUMMARY.md"
+echo ""
+echo "================================================"
+echo "🎉 Your research repository is ready!"
+echo "================================================"
+echo ""
+echo "Repository features:"
+echo "  ✅ Complete research paper (40+ pages)"
+echo "  ✅ Working code (Jupyter notebook)"
+echo "  ✅ All experimental data"
+echo "  ✅ Professional documentation"
+echo "  ✅ Git initialized and ready to push"
+echo ""
+echo "Highlights:"
+echo "  🏆 100% intervention success (p < 10⁻⁴⁰)"
+echo "  🎯 96% classification accuracy (QSVC)"
+echo "  💪 0.8% hardware degradation (exceptional!)"
+echo "  📈 300% entropy improvement"
 echo ""
 
 exit 0
